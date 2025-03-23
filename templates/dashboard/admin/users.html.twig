@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des utilisateurs{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Utilisateurs</h1>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Rôles</th>
+                <th>Vérifié</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.roles|join(', ') }}</td>
+                    <td>{{ user.isVerified ? 'Oui' : 'Non' }}</td>
+                    <td><a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                        <a href="{{ path('admin_user_delete', {id: user.id}) }}"class="btn btn-danger btn-sm"onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">Supprimer</a></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Aucun utilisateur trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

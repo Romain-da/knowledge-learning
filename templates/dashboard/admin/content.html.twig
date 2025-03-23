@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des contenus{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Certifications</h1>
+
+    <a href="{{ path('admin_content_create') }}" class="btn btn-success mb-3">➕ Ajouter une certification</a>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for certification in certifications %}
+                <tr>
+                    <td>{{ certification.id }}</td>
+                    <td>{{ certification.nom }}</td>
+                    <td>{{ certification.description }}</td>
+                    <td>
+                        <a href="{{ path('admin_content_edit', { id: certification.id }) }}" class="btn btn-sm btn-primary">✏️ Modifier</a>
+                        <a href="{{ path('admin_content_delete', { id: certification.id }) }}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Confirmer la suppression ?');">🗑 Supprimer</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Aucune certification disponible.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

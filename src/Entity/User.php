@@ -23,14 +23,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[ORM\Column]
+    private ?string $password = null; // Le type string suffit, Doctrine gère bien avec PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: "json")]
     private array $roles = [];
 
     #[ORM\Column]
-    private ?bool $isVerified = false;
+    private bool $isVerified = false; // Correction du type pour éviter le nullable
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -83,8 +83,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
+        // Ajoute systématiquement ROLE_USER si aucun rôle n'est défini
         $roles = $this->roles;
-        // Garantit qu'un utilisateur a toujours au moins le rôle "ROLE_USER"
         if (!in_array('ROLE_USER', $roles, true)) {
             $roles[] = 'ROLE_USER';
         }
@@ -93,11 +93,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setRoles(array $roles): static
     {
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
         $this->roles = $roles;
         return $this;
     }
 
-    public function isVerified(): ?bool
+    public function isVerified(): bool
     {
         return $this->isVerified;
     }
@@ -124,7 +127,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials(): void
     {
-        // Efface les données sensibles temporaires
+        // Symfony appelle cette méthode après la connexion pour nettoyer les données sensibles
+        // Exemple : $this->plainPassword = null;
     }
 
     public function getUserIdentifier(): string

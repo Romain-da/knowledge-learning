@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon espace personnel{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">Bienvenue {{ user.email }} 👋</h1>
+
+    <h3>🧑‍🏫 Mes cursus achetés</h3>
+    {% if achats is not empty %}
+        <ul>
+            {% for achat in achats %}
+                <li>{{ achat.cursus.nom }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Vous n'avez pas encore acheté de cursus.</p>
+        <a href="{{ path('app_boutique') }}" class="btn btn-primary">Découvrir la boutique</a>
+    {% endif %}
+
+    <h3 class="mt-4">📜 Mes certifications</h3>
+    {% if certifications is not empty %}
+        <ul>
+            {% for certif in certifications %}
+                <li>{{ certif.nom }} - Obtenue le {{ certif.obtenueLe|date('d/m/Y') }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune certification obtenue.</p>
+    {% endif %}
+</div>
+{% endblock %}

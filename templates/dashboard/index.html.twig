@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Bienvenue sur votre dashboard</h1>
+
+        {% if user %}
+            <p>Connecté en tant que : <strong>{{ user.email }}</strong></p>
+        {% endif %}
+
+        <div class="alert alert-info">
+            À venir : espace personnel, achats, certifications, etc.
+        </div>
+    </div>
+{% endblock %}

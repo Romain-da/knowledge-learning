@@ -1,0 +1,148 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\User;
+use App\Entity\Certification;
+use App\Form\CertificationType;
+use App\Form\RegistrationFormType;
+use App\Repository\AchatRepository;
+use App\Repository\CertificationRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Security;
+
+class DashboardController extends AbstractController
+{
+    #[Route('/dashboard', name: 'app_dashboard')]
+    public function index(
+        Security $security,
+        AchatRepository $achatRepository,
+        CertificationRepository $certificationRepository
+    ): Response {
+        $user = $security->getUser();
+
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            return $this->render('dashboard/admin.html.twig', [
+                'user' => $user,
+            ]);
+        }
+
+        return $this->render('dashboard/client.html.twig', [
+            'user' => $user,
+            'achats' => $achatRepository->findBy(['user' => $user]),
+            'certifications' => $certificationRepository->findBy(['user' => $user]),
+        ]);
+    }
+
+    // GESTION UTILISATEURS ADMIN
+    #[Route('/dashboard/admin/users', name: 'admin_users')]
+    public function manageUsers(UserRepository $userRepository): Response
+    {
+        return $this->render('dashboard/admin/users.html.twig', [
+            'users' => $userRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/dashboard/admin/users/edit/{id}', name: 'admin_user_edit')]
+    public function editUser(User $user, Request $request, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(RegistrationFormType::class, $user, [
+            'is_edit' => true,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Utilisateur modifié avec succès.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('dashboard/admin/edit_user.html.twig', [
+            'userForm' => $form->createView(),
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/dashboard/admin/users/delete/{id}', name: 'admin_user_delete')]
+    public function deleteUser(User $user, EntityManagerInterface $em): Response
+    {
+        $em->remove($user);
+        $em->flush();
+        $this->addFlash('danger', 'Utilisateur supprimé avec succès.');
+        return $this->redirectToRoute('admin_users');
+    }
+
+    // GESTION CONTENUS (CERTIFICATIONS)
+    #[Route('/dashboard/admin/content', name: 'admin_content')]
+    public function manageContent(CertificationRepository $certificationRepository): Response
+    {
+        return $this->render('dashboard/admin/content.html.twig', [
+            'certifications' => $certificationRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/dashboard/admin/content/create', name: 'admin_certification_create')]
+    public function createCertification(Request $request, EntityManagerInterface $em): Response
+    {
+        $certification = new Certification();
+        $form = $this->createForm(CertificationType::class, $certification);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($certification);
+            $em->flush();
+            $this->addFlash('success', 'Certification ajoutée avec succès.');
+            return $this->redirectToRoute('admin_content');
+        }
+
+        return $this->render('dashboard/admin/certification_form.html.twig', [
+            'form' => $form->createView(),
+            'is_edit' => false,
+        ]);
+    }
+
+    #[Route('/dashboard/admin/content/edit/{id}', name: 'admin_certification_edit')]
+    public function editCertification(Certification $certification, Request $request, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(CertificationType::class, $certification);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Certification modifiée avec succès.');
+            return $this->redirectToRoute('admin_content');
+        }
+
+        return $this->render('dashboard/admin/certification_form.html.twig', [
+            'form' => $form->createView(),
+            'is_edit' => true,
+        ]);
+    }
+
+    #[Route('/dashboard/admin/content/delete/{id}', name: 'admin_certification_delete')]
+    public function deleteCertification(Certification $certification, EntityManagerInterface $em): Response
+    {
+        $em->remove($certification);
+        $em->flush();
+        $this->addFlash('danger', 'Certification supprimée avec succès.');
+        return $this->redirectToRoute('admin_content');
+    }
+
+    // GESTION ACHATS
+    #[Route('/dashboard/admin/orders', name: 'admin_orders')]
+    public function manageOrders(AchatRepository $achatRepository): Response
+    {
+        return $this->render('dashboard/admin/orders.html.twig', [
+            'achats' => $achatRepository->findAll(),
+        ]);
+    }
+}

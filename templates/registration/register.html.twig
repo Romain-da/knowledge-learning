@@ -3,21 +3,39 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+    <div class="container mt-4">
+        {% for flash_error in app.flashes('verify_email_error') %}
+            <div class="alert alert-danger" role="alert">
+                {{ flash_error }}
+            </div>
+        {% endfor %}
 
-    <h1>Register</h1>
+        <h1 class="mb-4">Register</h1>
 
-    {{ form_errors(registrationForm) }}
+        {% if registrationForm is defined %}
+            {{ form_start(registrationForm, {'attr': {'data-turbo': 'false', 'class': 'needs-validation', 'novalidate': 'true'}}) }}
+                <div class="mb-3">
+                    {{ form_label(registrationForm.email) }}
+                    {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(registrationForm.email) }}
+                </div>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+                <div class="mb-3">
+                    {{ form_label(registrationForm.plainPassword, 'Password') }}
+                    {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(registrationForm.plainPassword) }}
+                </div>
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                <div class="mb-3 form-check">
+                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                    {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register</button>
+            {{ form_end(registrationForm) }}
+        {% else %}
+            <div class="alert alert-danger">Le formulaire d'inscription n'est pas disponible.</div>
+        {% endif %}
+    </div>
 {% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ isEdit ? 'Modifier' : 'Créer' }} une certification{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>{{ isEdit ? 'Modifier' : 'Créer' }} une certification</h1>
+
+        {{ form_start(form) }}
+            {{ form_row(form.nom) }}
+            {{ form_row(form.description) }}
+            <button class="btn btn-success">{{ isEdit ? 'Enregistrer les modifications' : 'Créer' }}</button>
+            <a href="{{ path('admin_content') }}" class="btn btn-secondary">Retour</a>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

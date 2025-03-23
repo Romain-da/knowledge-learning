@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier l'utilisateur{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Modifier l'utilisateur : {{ user.email }}</h1>
+
+    {{ form_start(userForm) }}
+
+    {{ form_row(userForm.email) }}
+
+    {# ✅ Champs supplémentaires affichés uniquement si présents dans le formulaire #}
+    {% if userForm.roles is defined %}
+        {{ form_row(userForm.roles) }}
+    {% endif %}
+
+    {% if userForm.isVerified is defined %}
+        {{ form_row(userForm.isVerified) }}
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a href="{{ path('admin_users') }}" class="btn btn-secondary">Annuler</a>
+
+    {{ form_end(userForm) }}
+</div>
+{% endblock %}

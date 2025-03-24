@@ -4,20 +4,25 @@
 
 {% block body %}
 <div class="container mt-4">
-    <h1 class="mb-4">Bienvenue, {{ user.email }}</h1>
+    <h1>Tableau de bord administrateur</h1>
     <hr>
-    <h2>Gestion administrative</h2>
-    <ul class="list-group">
-        <li class="list-group-item">
-            <a href="{{ path('admin_users') }}">👥 Gérer les utilisateurs</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{{ path('admin_content') }}">📚 Gérer les contenus</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{{ path('admin_orders') }}">💳 Suivre les achats</a>
-        </li>
-    </ul>
+    
+    <div class="row">
+        <!-- Menu latéral -->
+        <div class="col-md-3">
+            <h3>📌 Navigation</h3>
+            <ul class="list-group">
+                <li class="list-group-item"><a href="{{ path('admin_users') }}">👥 Gérer les utilisateurs</a></li>
+                <li class="list-group-item"><a href="{{ path('admin_content') }}">📚 Gérer les certifications</a></li>
+                <li class="list-group-item"><a href="{{ path('admin_orders') }}">🛒 Suivi des achats</a></li>
+            </ul>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="col-md-9">
+            <h2>📌 Administration</h2>
+            <p>Bienvenue, <strong>{{ user.email }}</strong> ! Choisissez une section du menu pour gérer le contenu.</p>
+        </div>
+    </div>
 </div>
-<a href="{{ path('app_logout') }}" class="btn btn-danger mt-3">Se déconnecter</a>
 {% endblock %}

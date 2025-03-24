@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\AchatRepository;
@@ -11,39 +10,36 @@ class Achat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'achats')]
-    private ?user $user = null;
+    #[ORM\ManyToOne(inversedBy: 'achats', cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'achats')]
+    #[ORM\ManyToOne(inversedBy: 'achats', cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Cursus $cursus = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateAchat = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: false)]
+    private ?float $montant = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function getUser(): ?user
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?user $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -55,7 +51,6 @@ class Achat
     public function setCursus(?Cursus $cursus): static
     {
         $this->cursus = $cursus;
-
         return $this;
     }
 
@@ -67,7 +62,17 @@ class Achat
     public function setDateAchat(\DateTimeInterface $dateAchat): static
     {
         $this->dateAchat = $dateAchat;
+        return $this;
+    }
 
+    public function getMontant(): ?float
+    {
+        return $this->montant;
+    }
+
+    public function setMontant(float $montant): static
+    {
+        $this->montant = $montant;
         return $this;
     }
 }

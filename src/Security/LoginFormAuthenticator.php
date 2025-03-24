@@ -52,7 +52,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         // ✅ Si admin, on redirige vers la zone admin directement
         if (in_array('ROLE_ADMIN', $roles, true)) {
             dump('Redirection admin');
-            return new RedirectResponse($this->urlGenerator->generate('admin_users'));
+            return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
         }
 
         // ✅ Sinon, on regarde s’il y avait un chemin stocké avant connexion

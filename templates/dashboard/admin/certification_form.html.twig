@@ -1,16 +1,31 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ isEdit ? 'Modifier' : 'Créer' }} une certification{% endblock %}
+{% block title %}
+    {% if is_edit %}
+        Modifier la certification
+    {% else %}
+        Nouvelle certification
+    {% endif %}
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>{{ isEdit ? 'Modifier' : 'Créer' }} une certification</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">
+        {% if is_edit %}
+            Modifier la certification
+        {% else %}
+            Ajouter une certification
+        {% endif %}
+    </h1>
 
-        {{ form_start(form) }}
-            {{ form_row(form.nom) }}
-            {{ form_row(form.description) }}
-            <button class="btn btn-success">{{ isEdit ? 'Enregistrer les modifications' : 'Créer' }}</button>
-            <a href="{{ path('admin_content') }}" class="btn btn-secondary">Retour</a>
-        {{ form_end(form) }}
-    </div>
+    {{ form_start(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
+
+        <button class="btn btn-primary">
+            {% if is_edit %}Mettre à jour{% else %}Créer{% endif %}
+        </button>
+        <a href="{{ path('admin_content') }}" class="btn btn-secondary">Annuler</a>
+    {{ form_end(form) }}
+</div>
 {% endblock %}

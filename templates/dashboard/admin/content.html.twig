@@ -1,19 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestion des contenus{% endblock %}
+{% block title %}Gestion des certifications{% endblock %}
 
 {% block body %}
 <div class="container mt-4">
-    <h1>Certifications</h1>
+    <h1>📜 Gestion des Certifications</h1>
 
-    <a href="{{ path('admin_content_create') }}" class="btn btn-success mb-3">➕ Ajouter une certification</a>
+    <a href="{{ path('admin_certification_create') }}" class="btn btn-success mb-3">➕ Ajouter une certification</a>
 
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nom</th>
+                <th>Titre</th>
                 <th>Description</th>
+                <th>Date d'obtention</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -21,18 +22,19 @@
             {% for certification in certifications %}
                 <tr>
                     <td>{{ certification.id }}</td>
-                    <td>{{ certification.nom }}</td>
-                    <td>{{ certification.description }}</td>
+                    <td>{{ certification.title }}</td> {# Remplace 'nom' par 'title' #}
+                    <td>{{ certification.description ?: 'Aucune description' }}</td>
+                    <td>{{ certification.dateObtention ? certification.dateObtention|date('d/m/Y') : 'Non définie' }}</td>
                     <td>
-                        <a href="{{ path('admin_content_edit', { id: certification.id }) }}" class="btn btn-sm btn-primary">✏️ Modifier</a>
-                        <a href="{{ path('admin_content_delete', { id: certification.id }) }}"
+                        <a href="{{ path('admin_certification_edit', { id: certification.id }) }}" class="btn btn-sm btn-primary">✏️ Modifier</a>
+                        <a href="{{ path('admin_certification_delete', { id: certification.id }) }}"
                            class="btn btn-sm btn-danger"
                            onclick="return confirm('Confirmer la suppression ?');">🗑 Supprimer</a>
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="4">Aucune certification disponible.</td>
+                    <td colspan="5" class="text-center">Aucune certification disponible.</td>
                 </tr>
             {% endfor %}
         </tbody>

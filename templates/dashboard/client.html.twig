@@ -19,12 +19,13 @@
     {% endif %}
 
     <h3 class="mt-4">📜 Mes certifications</h3>
-    {% if certifications is not empty %}
-        <ul>
-            {% for certif in certifications %}
-                <li>{{ certif.nom }} - Obtenue le {{ certif.obtenueLe|date('d/m/Y') }}</li>
-            {% endfor %}
-        </ul>
+    <ul>
+        {% for certification in certifications %}
+            <li>{{ certification.cursus.nom }} - Obtenue le {{ certification.dateObtention|date("d/m/Y") }}</li>
+        {% else %}
+            <li>Aucune certification obtenue.</li>
+        
+    </ul>
     {% else %}
         <p>Aucune certification obtenue.</p>
     {% endif %}

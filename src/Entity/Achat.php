@@ -13,11 +13,11 @@ class Achat
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'achats', cascade: ['persist'])]
+    #[ORM\ManyToOne(inversedBy: 'achats', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'achats', cascade: ['persist'])]
+    #[ORM\ManyToOne(inversedBy: 'achats', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Cursus $cursus = null;
 
@@ -25,7 +25,7 @@ class Achat
     private ?\DateTimeInterface $dateAchat = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: false)]
-    private ?float $montant = null;
+    private ?string $montant = null; 
 
     public function getId(): ?int
     {
@@ -65,12 +65,12 @@ class Achat
         return $this;
     }
 
-    public function getMontant(): ?float
+    public function getMontant(): ?string 
     {
         return $this->montant;
     }
 
-    public function setMontant(float $montant): static
+    public function setMontant(string $montant): static 
     {
         $this->montant = $montant;
         return $this;

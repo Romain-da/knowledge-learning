@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des leçons{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>📖 Gestion des Leçons</h1>
+
+    <a href="{{ path('admin_lecon_create') }}" class="btn btn-success mb-3">➕ Ajouter une leçon</a>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Cursus</th>
+                <th>Créée le</th>
+                <th>Validée</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lecon in lecons %}
+                <tr>
+                    <td>{{ lecon.id }}</td>
+                    <td>{{ lecon.titre }}</td>
+                    <td>{{ lecon.cursus.nom }}</td>
+                    <td>{{ lecon.createdAt|date('d/m/Y') }}</td>
+                    <td>
+                        {% if lecon.isValidated %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_lecon_edit', { id: lecon.id }) }}" class="btn btn-sm btn-primary">✏️ Modifier</a>
+                        <a href="{{ path('admin_lecon_delete', { id: lecon.id }) }}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Confirmer la suppression ?');">🗑 Supprimer</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">Aucune leçon disponible.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

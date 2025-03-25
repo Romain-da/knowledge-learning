@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_edit ? 'Modifier' : 'Créer' }} une leçon{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>{{ is_edit ? 'Modifier' : 'Créer' }} une leçon</h1>
+
+    {{ form_start(form) }}
+    {{ form_row(form.titre) }}
+    {{ form_row(form.contenu) }}
+    {{ form_row(form.cursus) }}
+
+    {# Vérifie si isValidated existe dans le formulaire avant d'afficher #}
+    {% if form.isValidated is defined %}
+        {{ form_row(form.isValidated) }}
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">{{ is_edit ? 'Mettre à jour' : 'Créer' }}</button>
+    <a href="{{ path('admin_lecons') }}" class="btn btn-secondary">Annuler</a>
+{{ form_end(form) }}
+</div>
+{% endblock %}

@@ -8,6 +8,9 @@ use App\Entity\Achat;
 use App\Entity\Certification;
 use App\Form\AchatType; 
 use App\Form\CertificationType;
+use App\Entity\Lecon;
+use App\Form\LeconType;
+use App\Repository\LeconRepository;
 use App\Form\RegistrationFormType;
 use App\Repository\AchatRepository;
 use App\Repository\CertificationRepository;
@@ -43,12 +46,18 @@ class DashboardController extends AbstractController
 
     // ✅ GESTION ADMIN
     #[Route('/dashboard/admin', name: 'admin_dashboard')]
-    public function adminDashboard(): Response
-    {
+    public function adminDashboard(
+        UserRepository $userRepository,
+        CertificationRepository $certificationRepository,
+        LeconRepository $leconRepository
+    ): Response {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-    
+
         return $this->render('dashboard/admin.html.twig', [
             'user' => $this->getUser(),
+            'users' => $userRepository->findAll(),
+            'certifications' => $certificationRepository->findAll(),
+            'lecons' => $leconRepository->findAll(),
         ]);
     }
 
@@ -108,7 +117,7 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route('/dashboard/admin/content/create', name: 'admin_content_create')]
+    #[Route('/dashboard/admin/content/create', name: 'admin_certification_create')]
     public function createCertification(Request $request, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
@@ -185,8 +194,16 @@ class DashboardController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // ✅ Vérification que le cursus est bien sélectionné
+            if (!$achat->getCursus()) {
+                $this->addFlash('danger', 'Veuillez sélectionner un cursus avant de valider.');
+                return $this->redirectToRoute('admin_order_create');
+            }
+
             $em->persist($achat);
             $em->flush();
+
             $this->addFlash('success', 'Achat ajouté avec succès.');
             return $this->redirectToRoute('admin_orders');
         }
@@ -206,6 +223,13 @@ class DashboardController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // ✅ Vérification avant modification
+            if (!$achat->getCursus()) {
+                $this->addFlash('danger', 'Le cursus est obligatoire.');
+                return $this->redirectToRoute('admin_order_edit', ['id' => $achat->getId()]);
+            }
+
             $em->flush();
             $this->addFlash('success', 'Achat modifié avec succès.');
             return $this->redirectToRoute('admin_orders');
@@ -228,4 +252,81 @@ class DashboardController extends AbstractController
         $this->addFlash('danger', 'Achat supprimé avec succès.');
         return $this->redirectToRoute('admin_orders');
     }
+
+    // ✅ Liste des leçons
+    #[Route('/dashboard/admin/lecons', name: 'admin_lecons')]
+    public function manageLecons(LeconRepository $leconRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        return $this->render('dashboard/admin/lecons.html.twig', [
+            'lecons' => $leconRepository->findAll(),
+            'user' => $this->getUser(),
+        ]);
+    }
+
+    // ✅ Création d'une leçon
+    #[Route('/dashboard/admin/lecons/create', name: 'admin_lecon_create')]
+    public function createLecon(Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $lecon = new Lecon();
+        $form = $this->createForm(LeconType::class, $lecon);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!$lecon->getCursus()) {
+                $this->addFlash('danger', 'Veuillez sélectionner un cursus.');
+                return $this->redirectToRoute('admin_lecon_create');
+            }
+
+            $em->persist($lecon);
+            $em->flush();
+            $this->addFlash('success', 'Leçon ajoutée avec succès.');
+            return $this->redirectToRoute('admin_lecons');
+        }
+
+        return $this->render('dashboard/admin/lecon_form.html.twig', [
+            'form' => $form->createView(),
+            'is_edit' => false,
+            'user' => $this->getUser(),
+        ]);
+    }
+
+    // ✅ Modification d'une leçon
+    #[Route('/dashboard/admin/lecons/edit/{id}', name: 'admin_lecon_edit')]
+    public function editLecon(Lecon $lecon, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $form = $this->createForm(LeconType::class, $lecon);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Leçon modifiée avec succès.');
+            return $this->redirectToRoute('admin_lecons');
+        }
+
+        return $this->render('dashboard/admin/lecon_form.html.twig', [
+            'form' => $form->createView(),
+            'is_edit' => true,
+            'user' => $this->getUser(),
+        ]);
+    }
+
+    // ✅ Suppression d'une leçon
+    #[Route('/dashboard/admin/lecons/delete/{id}', name: 'admin_lecon_delete')]
+    public function deleteLecon(Lecon $lecon, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $em->remove($lecon);
+        $em->flush();
+        $this->addFlash('danger', 'Leçon supprimée avec succès.');
+        return $this->redirectToRoute('admin_lecons');
+    }
+
+
 }

@@ -15,31 +15,32 @@ class Lecon
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $titre = null;
+    private string $titre;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $contenu = null;
 
     #[ORM\ManyToOne(inversedBy: 'lecons')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)] // Correction: nullable pour éviter les erreurs SQL
     private ?Cursus $cursus = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isValidated = false;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime(); // Auto-set la date à la création
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function getTitre(): ?string
+    public function getTitre(): string
     {
         return $this->titre;
     }
@@ -47,7 +48,6 @@ class Lecon
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
-
         return $this;
     }
 
@@ -59,7 +59,6 @@ class Lecon
     public function setContenu(?string $contenu): static
     {
         $this->contenu = $contenu;
-
         return $this;
     }
 
@@ -71,11 +70,10 @@ class Lecon
     public function setCursus(?Cursus $cursus): static
     {
         $this->cursus = $cursus;
-
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -83,7 +81,29 @@ class Lecon
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
+    }
+
+    public function isValidated(): bool
+    {
+        return $this->isValidated;
+    }
+
+    public function setValidated(bool $isValidated): static
+    {
+        $this->isValidated = $isValidated;
+        return $this;
+    }
+
+    public function toggleValidation(): static
+    {
+        $this->isValidated = !$this->isValidated;
+        return $this;
+    }
+
+    // ✅ Ajout d'une méthode __toString() pour l'affichage dans les formulaires
+    public function __toString(): string
+    {
+        return $this->titre;
     }
 }

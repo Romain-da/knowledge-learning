@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <h1>Tableau de bord administrateur</h1>
     <hr>
-    
+
     <div class="row">
         <!-- Menu latéral -->
         <div class="col-md-3">
@@ -15,6 +15,7 @@
                 <li class="list-group-item"><a href="{{ path('admin_users') }}">👥 Gérer les utilisateurs</a></li>
                 <li class="list-group-item"><a href="{{ path('admin_content') }}">📚 Gérer les certifications</a></li>
                 <li class="list-group-item"><a href="{{ path('admin_orders') }}">🛒 Suivi des achats</a></li>
+                <li class="list-group-item"><a href="{{ path('admin_lecons') }}">📖 Gérer les leçons</a></li>
             </ul>
         </div>
 
@@ -22,6 +23,40 @@
         <div class="col-md-9">
             <h2>📌 Administration</h2>
             <p>Bienvenue, <strong>{{ user.email }}</strong> ! Choisissez une section du menu pour gérer le contenu.</p>
+
+            <!-- Statistiques rapides -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">Utilisateurs</div>
+                        <div class="card-body">
+                            <h5 class="card-title">👥 {{ users|length }}</h5>
+                            <p class="card-text">Nombre total d'utilisateurs.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">Certifications</div>
+                        <div class="card-body">
+                            <h5 class="card-title">📜 {{ certifications|length }}</h5>
+                            <p class="card-text">Nombre total de certifications.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-header">Leçons</div>
+                        <div class="card-body">
+                            <h5 class="card-title">📖 {{ lecons|length }}</h5>
+                            <p class="card-text">Nombre total de leçons.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

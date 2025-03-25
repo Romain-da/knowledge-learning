@@ -14,6 +14,12 @@ class Certification
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
     #[ORM\ManyToOne(inversedBy: 'certifications')]
     private ?User $user = null;
 
@@ -28,10 +34,25 @@ class Certification
         return $this->id;
     }
 
-    public function setId(int $id): static
+    public function getTitle(): ?string
     {
-        $this->id = $id;
+        return $this->title;
+    }
 
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
         return $this;
     }
 
@@ -43,7 +64,6 @@ class Certification
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -55,7 +75,6 @@ class Certification
     public function setCursus(?Cursus $cursus): static
     {
         $this->cursus = $cursus;
-
         return $this;
     }
 
@@ -64,10 +83,11 @@ class Certification
         return $this->dateObtention;
     }
 
-    public function setDateObtention(\DateTimeInterface $dateObtention): static
+    public function setDateObtention(?\DateTimeInterface $dateObtention): static
     {
-        $this->dateObtention = $dateObtention;
-
+        $this->dateObtention = $dateObtention ?? new \DateTime(); // Définit la date actuelle par défaut
         return $this;
     }
+
+    
 }

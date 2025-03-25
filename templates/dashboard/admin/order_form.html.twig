@@ -6,11 +6,13 @@
 <div class="container mt-4">
     <h1>{{ is_edit ? 'Modifier' : 'Créer' }} un achat</h1>
     {{ form_start(form) }}
-    {{ form_row(form.user) }} {# Correction du champ user #}
+    {{ form_row(form.user) }}
+    {{ form_row(form.cursus) }} {# ⚠️ Vérifie bien que cursus est présent #}
     {{ form_row(form.montant) }}
-    {{ form_row(form.dateAchat) }} {# Correction ici, utiliser dateAchat au lieu de date #}
+    {{ form_row(form.dateAchat) }}
     <button type="submit" class="btn btn-primary">{{ is_edit ? 'Mettre à jour' : 'Créer' }}</button>
     <a href="{{ path('admin_orders') }}" class="btn btn-secondary">Annuler</a>
     {{ form_end(form) }}
 </div>
 {% endblock %}
+

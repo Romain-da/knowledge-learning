@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'Un compte existe déjà avec cet email.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -24,16 +24,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column]
-    private ?string $password = null; // Le type string suffit, Doctrine gère bien avec PasswordAuthenticatedUserInterface
+    private ?string $password = null;
 
     #[ORM\Column(type: "json")]
     private array $roles = [];
 
     #[ORM\Column]
-    private bool $isVerified = false; // Correction du type pour éviter le nullable
+    private bool $isVerified = false;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $prenom = null;
 
     /**
      * @var Collection<int, Achat>
@@ -51,7 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->achats = new ArrayCollection();
         $this->certifications = new ArrayCollection();
-        $this->createdAt = new \DateTime(); // Initialise la date de création par défaut
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int
@@ -83,12 +89,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        // Ajoute systématiquement ROLE_USER si aucun rôle n'est défini
         $roles = $this->roles;
         if (!in_array('ROLE_USER', $roles, true)) {
             $roles[] = 'ROLE_USER';
         }
-        return $roles;
+        return array_unique($roles);
     }
 
     public function setRoles(array $roles): static
@@ -96,7 +101,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if (!in_array('ROLE_USER', $roles, true)) {
             $roles[] = 'ROLE_USER';
         }
-        $this->roles = $roles;
+        $this->roles = array_unique($roles);
         return $this;
     }
 
@@ -122,13 +127,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
+        return $this;
+    }
+
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(?string $prenom): static
+    {
+        $this->prenom = $prenom;
+        return $this;
+    }
+
     /**
-     * Méthodes requises par l'interface UserInterface
+     * Implémentation requise par UserInterface
      */
     public function eraseCredentials(): void
     {
-        // Symfony appelle cette méthode après la connexion pour nettoyer les données sensibles
-        // Exemple : $this->plainPassword = null;
+        // Suppression des données sensibles après connexion
     }
 
     public function getUserIdentifier(): string

@@ -8,6 +8,9 @@ use App\Entity\Achat;
 use App\Entity\Certification;
 use App\Form\AchatType; 
 use App\Form\CertificationType;
+use App\Repository\CursusRepository;
+use App\Entity\Cursus;
+use App\Form\CursusType;
 use App\Entity\Lecon;
 use App\Form\LeconType;
 use App\Repository\LeconRepository;
@@ -62,13 +65,20 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/admin/users', name: 'admin_users')]
-    public function manageUsers(UserRepository $userRepository): Response
+    public function manageUsers(Request $request, UserRepository $userRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
+        $searchTerm = $request->query->get('search');
+        if ($searchTerm) {
+            $users = $userRepository->searchByEmailOrName($searchTerm);
+        } else {
+            $users = $userRepository->findAll();
+        }
+
         return $this->render('dashboard/admin/users.html.twig', [
-            'users' => $userRepository->findAll(),
-            'user' => $this->getUser(),
+            'users' => $users,
+            'searchTerm' => $searchTerm,
         ]);
     }
 
@@ -328,5 +338,68 @@ class DashboardController extends AbstractController
         return $this->redirectToRoute('admin_lecons');
     }
 
+    #[Route('/dashboard/admin/cursus', name: 'admin_cursus')]
+    public function manageCursus(CursusRepository $cursusRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        return $this->render('dashboard/admin/cursus.html.twig', [
+            'cursusList' => $cursusRepository->findAll(), // 🔥 Correction de la variable
+        ]);
+    }
+
+    #[Route('/dashboard/admin/cursus/create', name: 'admin_cursus_create')]
+    public function createCursus(Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $cursus = new Cursus();
+        $form = $this->createForm(CursusType::class, $cursus);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($cursus);
+            $em->flush();
+            $this->addFlash('success', 'Cursus ajouté avec succès.');
+            return $this->redirectToRoute('admin_cursus');
+        }
+
+        return $this->render('dashboard/admin/cursus_form.html.twig', [
+            'form' => $form->createView(),
+            'is_edit' => false,
+        ]);
+    }
+
+    #[Route('/dashboard/admin/cursus/edit/{id}', name: 'admin_cursus_edit')]
+public function editCursus(Cursus $cursus, Request $request, EntityManagerInterface $em): Response
+{
+    $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+    $form = $this->createForm(CursusType::class, $cursus);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->flush();
+        $this->addFlash('success', 'Cursus modifié avec succès.');
+        return $this->redirectToRoute('admin_cursus');
+    }
+
+    return $this->render('dashboard/admin/cursus_form.html.twig', [
+        'form' => $form->createView(),
+        'is_edit' => true,
+    ]);
+}
+
+#[Route('/dashboard/admin/cursus/delete/{id}', name: 'admin_cursus_delete', methods: ['POST', 'GET'])]
+public function deleteCursus(Cursus $cursus, EntityManagerInterface $em): Response
+{
+    $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+    $em->remove($cursus);
+    $em->flush();
+    $this->addFlash('danger', 'Cursus supprimé avec succès.');
+    
+    return $this->redirectToRoute('admin_cursus');
+}
 
 }

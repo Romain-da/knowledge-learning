@@ -16,28 +16,51 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Recherche des utilisateurs par email ou nom.
+     *
+     * @param string $search Le terme de recherche.
+     * @return User[] Retourne un tableau d'utilisateurs correspondants.
+     */
+    public function searchByEmailOrName(string $search): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.email LIKE :search')
+            ->orWhere('u.nom LIKE :search')
+            ->orWhere('u.prenom LIKE :search')
+            ->setParameter('search', '%' . $search . '%')
+            ->orderBy('u.nom', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Récupère les utilisateurs avec pagination.
+     *
+     * @param int $page Numéro de la page.
+     * @param int $limit Nombre d'éléments par page.
+     * @return array Retourne les utilisateurs paginés.
+     */
+    public function getPaginatedUsers(int $page, int $limit): array
+    {
+        return $this->createQueryBuilder('u')
+            ->orderBy('u.nom', 'ASC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Compte le nombre total d'utilisateurs.
+     *
+     * @return int Le nombre total d'utilisateurs.
+     */
+    public function countUsers(): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

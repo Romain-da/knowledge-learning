@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panier{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>🛒 Votre Panier</h1>
+
+    {% if panier is empty %}
+        <p>Votre panier est vide.</p>
+    {% else %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in panier %}
+                    <tr>
+                        <td>{{ item.cursus.nom }}</td>
+                        <td>{{ item.cursus.prix }} €</td>
+                        <td>{{ item.quantite }}</td>
+                        <td>{{ item.cursus.prix * item.quantite }} €</td>
+                        <td><a href="{{ path('panier_retirer', { id: item.cursus.id }) }}" class="btn btn-sm btn-danger">🗑 Supprimer</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Total : {{ total }} €</h3>
+        <a href="{{ path('panier_vider') }}" class="btn btn-warning">Vider le panier</a>
+        <a href="{{ path('app_boutique') }}" class="btn btn-secondary">Continuer les achats</a>
+        <a href="{{ path('paiement') }}" class="btn btn-success">💳 Payer</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}🛒 Mon Panier{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>🛒 Mon Panier</h1>
+    
+    {% if panier|length > 0 %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Nom du Cursus</th>
+                    <th>Prix Unitaire</th>
+                    <th>Quantité</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in panier %}
+                    <tr>
+                        <td>{{ item.cursus.nom }}</td>
+                        <td>{{ item.cursus.prix|number_format(2, ',', ' ') }} €</td>
+                        <td>{{ item.quantite }}</td>
+                        <td>{{ (item.cursus.prix * item.quantite)|number_format(2, ',', ' ') }} €</td>
+                        <td>
+                            <a href="{{ path('panier_ajouter', { id: item.cursus.id }) }}" class="btn btn-sm btn-success">➕</a>
+                            <a href="{{ path('panier_retirer', { id: item.cursus.id }) }}" class="btn btn-sm btn-warning">➖</a>
+                            <a href="{{ path('panier_supprimer', { id: item.cursus.id }) }}" class="btn btn-sm btn-danger">🗑</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-right"><strong>Total :</strong></td>
+                    <td><strong>{{ total|number_format(2, ',', ' ') }} €</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="d-flex justify-content-between">
+            <a href="{{ path('app_boutique') }}" class="btn btn-secondary">🛍 Continuer mes achats</a>
+            <a href="{{ path('paiement') }}" class="btn btn-success">💳 Payer</a>
+        </div>
+    {% else %}
+        <p class="alert alert-warning">Votre panier est vide.</p>
+        <a href="{{ path('app_boutique') }}" class="btn btn-primary">🛍 Retour à la boutique</a>
+    {% endif %}
+</div>
+{% endblock %}

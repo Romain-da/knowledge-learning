@@ -1,10 +1,25 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Boutique{% endblock %}
+{% block title %}🛍 Boutique{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1>Bienvenue dans la boutique</h1>
-        <p>Liste des cursus disponibles à l'achat (à compléter)...</p>
+<div class="container mt-4">
+    <h1>🛍 Boutique</h1>
+    <div class="row">
+        {% for cursus in cursusList %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ cursus.nom }}</h5>
+                        <p class="card-text">{{ cursus.description|slice(0, 100) }}...</p>
+                        <p class="card-text"><strong>{{ cursus.prix|number_format(2, ',', ' ') }} €</strong></p>
+                        <a href="{{ path('panier_ajouter', { id: cursus.id }) }}" class="btn btn-primary">🛒 Ajouter au panier</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="alert alert-warning">Aucun cursus disponible.</p>
+        {% endfor %}
     </div>
+</div>
 {% endblock %}

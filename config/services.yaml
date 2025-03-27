@@ -1,18 +1,8 @@
-parameters:
-    stripe_secret_key: '%env(resolve:STRIPE_SECRET_KEY)%' # 🔥 Forcer Symfony à résoudre cette variable
-
 services:
     _defaults:
         autowire: true
         autoconfigure: true
 
-    # Correction du service StripeService
-    App\Service\StripeService:
-        arguments:
-            $stripeSecretKey: '%env(resolve:STRIPE_SECRET_KEY)%'  # ✅ Utiliser resolve ici directement
-            $urlGenerator: '@router'  # ✅ Injection correcte du router
-
-    # Configuration générale
     App\:
         resource: '../src/'
         exclude:

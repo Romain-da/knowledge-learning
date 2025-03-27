@@ -3,24 +3,34 @@
 namespace App\Controller;
 
 use App\Service\StripeService;
+use App\Service\PanierService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StripeController extends AbstractController
 {
-    #[Route('/paiement/checkout', name: 'stripe_checkout', methods: ['POST'])]
-    public function checkout(StripeService $stripeService): JsonResponse
+    #[Route('/paiement', name: 'paiement')]
+    public function index(PanierService $panierService): Response
     {
+        return $this->render('paiement/index.html.twig', [
+            'stripe_public_key' => $_ENV['STRIPE_PUBLIC_KEY'] ?? 'clé_manquante',
+            'total' => $panierService->getTotal()
+        ]);
+    }
+
+    #[Route('/paiement/checkout', name: 'stripe_checkout', methods: ['POST'])]
+    public function checkout(StripeService $stripeService, PanierService $panierService): JsonResponse
+    {
+        $items = $panierService->getPanier();
+
+        if (empty($items)) {
+            return $this->json(['error' => 'Panier vide'], 400);
+        }
+
         $session = $stripeService->createCheckoutSession(
-            [
-                'price_data' => [
-                    'currency' => 'eur',
-                    'product_data' => ['name' => 'Achat de cursus'],
-                    'unit_amount' => 1000, // 10,00€
-                ],
-                'quantity' => 1,
-            ],
+            $items,
             $this->generateUrl('payment_success', [], true),
             $this->generateUrl('payment_cancel', [], true)
         );
@@ -29,14 +39,19 @@ class StripeController extends AbstractController
     }
 
     #[Route('/paiement/success', name: 'payment_success')]
-    public function success(): Response
+    public function success(PanierService $panierService): Response
     {
-        return $this->render('stripe/success.html.twig');
+        // ✅ Vider le panier après un paiement réussi
+        $panierService->vider();
+
+        $this->addFlash('success', '🎉 Paiement réussi, merci pour votre achat !');
+        return $this->redirectToRoute('app_boutique');
     }
 
     #[Route('/paiement/cancel', name: 'payment_cancel')]
     public function cancel(): Response
     {
-        return $this->render('stripe/cancel.html.twig');
+        $this->addFlash('warning', '⚠️ Paiement annulé.');
+        return $this->redirectToRoute('panier_afficher');
     }
 }

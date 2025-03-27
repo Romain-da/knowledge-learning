@@ -20,11 +20,8 @@ class PanierService
     {
         $panier = $this->session->get('panier', []);
 
-        if (!isset($panier[$id])) {
-            $panier[$id] = 1;
-        } else {
-            $panier[$id]++;
-        }
+        // Incrémentation de la quantité ou ajout
+        $panier[$id] = ($panier[$id] ?? 0) + 1;
 
         $this->session->set('panier', $panier);
     }
@@ -33,12 +30,14 @@ class PanierService
     {
         $panier = $this->session->get('panier', []);
 
-        if (isset($panier[$id])) {
-            if ($panier[$id] > 1) {
-                $panier[$id]--;
-            } else {
-                unset($panier[$id]);
-            }
+        if (!isset($panier[$id])) {
+            return;
+        }
+
+        if ($panier[$id] > 1) {
+            $panier[$id]--;
+        } else {
+            unset($panier[$id]);
         }
 
         $this->session->set('panier', $panier);
@@ -56,10 +55,11 @@ class PanierService
 
         foreach ($panier as $id => $quantite) {
             $cursus = $this->cursusRepository->find($id);
+
             if ($cursus) {
                 $panierDetails[] = [
                     'cursus' => $cursus,
-                    'quantite' => $quantite
+                    'quantite' => $quantite,
                 ];
             }
         }
@@ -70,9 +70,11 @@ class PanierService
     public function getTotal(): float
     {
         $total = 0;
+
         foreach ($this->getPanier() as $item) {
             $total += $item['cursus']->getPrix() * $item['quantite'];
         }
+
         return $total;
     }
 }

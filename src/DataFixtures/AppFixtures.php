@@ -43,34 +43,63 @@ class AppFixtures extends Fixture
         // ✅ Cursus avec leurs leçons (et prix des leçons)
         $data = [
             [
-                'nom' => 'Développement Web',
+                'nom' => 'Initiation à la guitare',
+                'categorie' => 'Musique',
+                'description' => 'Apprendre la guitare',
+                'prix' => 50,
+                'lecons' => [
+                    ['titre' => 'Leçon n°1', 'contenu' => 'Découverte de la guitare', 'prix' => 26],
+                    ['titre' => 'Leçon n°2', 'contenu' => 'Les accords et les gammes', 'prix' => 26],
+                ],
+            ],
+            [
+                'nom' => 'Initation au piano',
+                'categorie' => 'Musique',
+                'description' => 'Apprendre le piano',
+                'prix' => 50,
+                'lecons' => [
+                    ['titre' => 'Leçon n°1', 'contenu' => 'Découverte de la guitare', 'prix' => 26],
+                    ['titre' => 'Leçon n°2', 'contenu' => 'Les accords et les gammes', 'prix' => 26],
+                ],
+            ],
+            [
+                'nom' => 'Initation au développent web',
                 'categorie' => 'Informatique',
-                'description' => 'Apprenez à créer des sites web modernes.',
-                'prix' => 79.99,
+                'description' => 'Apprendre le Développement web',
+                'prix' => 60,
                 'lecons' => [
-                    ['titre' => 'Introduction au HTML', 'contenu' => 'Contenu HTML...', 'prix' => 19.99],
-                    ['titre' => 'CSS pour les débutants', 'contenu' => 'Contenu CSS...', 'prix' => 24.99],
-                    ['titre' => 'Bases de JavaScript', 'contenu' => 'Contenu JavaScript...', 'prix' => 29.99],
+                    ['titre' => 'Leçon n°1', 'contenu' => 'Les langages HTML et CSS', 'prix' => 32],
+                    ['titre' => 'Leçon n°2', 'contenu' => 'Dynamiser votre site avec JavaScript', 'prix' => 32],
                 ],
             ],
             [
-                'nom' => 'Marketing Digital',
-                'categorie' => 'Communication',
-                'description' => 'Maîtrisez les outils du marketing numérique.',
-                'prix' => 59.99,
+                'nom' => 'Initation au jardinage',
+                'categorie' => 'Jardinage',
+                'description' => 'Apprendre le jardinage',
+                'prix' => 30,
                 'lecons' => [
-                    ['titre' => 'SEO : Les bases', 'contenu' => 'Contenu SEO...', 'prix' => 19.99],
-                    ['titre' => 'Publicité sur les réseaux', 'contenu' => 'Contenu Ads...', 'prix' => 24.99],
+                    ['titre' => 'Leçon n°1', 'contenu' => 'Les outils du jardinier', 'prix' => 16],
+                    ['titre' => 'Leçon n°2', 'contenu' => 'Jardiner avec la lune', 'prix' => 16],
                 ],
             ],
             [
-                'nom' => 'Design UX/UI',
-                'categorie' => 'Design',
-                'description' => 'Créez des interfaces intuitives.',
-                'prix' => 49.99,
+                'nom' => 'Initation à la cuisine',
+                'categorie' => 'Cuisine',
+                'description' => 'Apprendre la cuisine',
+                'prix' => 44,
                 'lecons' => [
-                    ['titre' => 'Principes de design', 'contenu' => 'Contenu design...', 'prix' => 19.99],
-                    ['titre' => 'Introduction à Figma', 'contenu' => 'Contenu Figma...', 'prix' => 24.99],
+                    ['titre' => 'Leçon n°1', 'contenu' => 'Les modes de cuisson', 'prix' => 23],
+                    ['titre' => 'Leçon n°2', 'contenu' => 'Les saveurs', 'prix' => 23],
+                ],
+            ],
+            [
+                'nom' => 'Initation au dressage en cuisine',
+                'categorie' => 'Cuisine',
+                'description' => 'Apprendre le dressage en cuisine',
+                'prix' => 48,
+                'lecons' => [
+                    ['titre' => 'Leçon n°1', 'contenu' => 'Mettre en oeuvre me style dans les assiettes', 'prix' => 26],
+                    ['titre' => 'Leçon n°2', 'contenu' => 'Harmoniser un repas à quatre plat', 'prix' => 26],
                 ],
             ],
         ];

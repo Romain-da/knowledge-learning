@@ -5,21 +5,57 @@
 {% block body %}
 <div class="container mt-4">
     <h1>🛍 Boutique</h1>
-    <div class="row">
+
+    {% if cursusList is not empty %}
+        {% set categories = [] %}
         {% for cursus in cursusList %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ cursus.nom }}</h5>
-                        <p class="card-text">{{ cursus.description|slice(0, 100) }}...</p>
-                        <p class="card-text"><strong>{{ cursus.prix|number_format(2, ',', ' ') }} €</strong></p>
-                        <a href="{{ path('panier_ajouter', { id: cursus.id }) }}" class="btn btn-primary">🛒 Ajouter au panier</a>
+            {% if cursus.categorie not in categories %}
+                {% set categories = categories|merge([cursus.categorie]) %}
+            {% endif %}
+        {% endfor %}
+
+        {% for categorie in categories %}
+            <h2>📚 {{ categorie }}</h2>
+            <div class="row">
+                {% for cursus in cursusList %}
+                    {% if cursus.categorie == categorie %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ cursus.nom }}</h5>
+                                    <p class="card-text">{{ cursus.description|slice(0, 100) }}...</p>
+                                    <p class="card-text"><strong>{{ cursus.prix|number_format(2, ',', ' ') }} €</strong></p>
+                                    <a href="{{ path('panier_ajouter', { id: cursus.id }) }}" class="btn btn-primary">🛒 Ajouter au panier</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="alert alert-warning">Aucun cursus disponible.</p>
+    {% endif %}
+
+    <hr>
+    <h2>📘 Leçons individuelles</h2>
+    {% if lecons is not empty %}
+        <div class="row">
+            {% for lecon in lecons %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ lecon.titre }}</h5>
+                            <p class="card-text">{{ lecon.contenu|slice(0, 100)|raw }}...</p>
+                            <p><strong>{{ lecon.prix|number_format(2, ',', ' ') }} €</strong></p>
+                            <a href="{{ path('panier_ajouter_lecon', { id: lecon.id }) }}" class="btn btn-sm btn-success">🛒 Ajouter</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% else %}
-            <p class="alert alert-warning">Aucun cursus disponible.</p>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="alert alert-info">Aucune leçon disponible à l’unité.</p>
+    {% endif %}
 </div>
 {% endblock %}

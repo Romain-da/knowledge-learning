@@ -8,13 +8,13 @@
 
     {% if panier is empty %}
         <div class="alert alert-info">Votre panier est vide.</div>
-        <a href="{{ path('app_boutique') }}" class="btn btn-primary">🛍 Voir les formations</a>
+        <a href="{{ path('app_boutique') }}" class="btn btn-primary mt-3">🛍 Voir les formations</a>
     {% else %}
-        <table class="table">
-            <thead>
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
                 <tr>
                     <th>Nom</th>
-                    <th>Prix</th>
+                    <th>Prix unitaire</th>
                     <th>Quantité</th>
                     <th>Total</th>
                     <th>Action</th>
@@ -23,23 +23,39 @@
             <tbody>
                 {% for item in panier %}
                     <tr>
-                        <td>{{ item.cursus.nom }}</td>
-                        <td>{{ item.cursus.prix|number_format(2, ',', ' ') }} €</td>
-                        <td>{{ item.quantite }}</td>
-                        <td>{{ (item.cursus.prix * item.quantite)|number_format(2, ',', ' ') }} €</td>
                         <td>
-                            <a href="{{ path('panier_retirer', { id: item.cursus.id }) }}" class="btn btn-sm btn-danger">🗑 Supprimer</a>
+                            {% if item.type == 'cursus' and item.item is defined %}
+                                <strong>{{ item.item.nom }}</strong><br>
+                                <small>Cursus complet</small>
+                            {% elseif item.type == 'lecon' and item.item is defined %}
+                                <strong>{{ item.item.titre }}</strong><br>
+                                <small>Leçon individuelle</small>
+                            {% else %}
+                                <em>Inconnu</em>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.prix|number_format(2, ',', ' ') }} €</td>
+                        <td>{{ item.quantite }}</td>
+                        <td>{{ (item.prix * item.quantite)|number_format(2, ',', ' ') }} €</td>
+                        <td>
+                            {% if item.type == 'cursus' %}
+                                <a href="{{ path('panier_retirer', { id: item.item.id }) }}" class="btn btn-sm btn-outline-danger">🗑 Supprimer</a>
+                            {% elseif item.type == 'lecon' %}
+                                <a href="{{ path('panier_retirer_lecon', { id: item.item.id }) }}" class="btn btn-sm btn-outline-danger">🗑 Supprimer</a>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <h3>Total : {{ total|number_format(2, ',', ' ') }} €</h3>
+        <div class="text-end mt-3">
+            <h4>Total à payer : <strong>{{ total|number_format(2, ',', ' ') }} €</strong></h4>
+        </div>
 
-        <div class="d-flex justify-content-end gap-2">
-            <a href="{{ path('panier_vider') }}" class="btn btn-warning">🧹 Vider le panier</a>
-            <a href="{{ path('app_boutique') }}" class="btn btn-secondary">🛍 Continuer les achats</a>
+        <div class="d-flex justify-content-end mt-3 gap-2">
+            <a href="{{ path('panier_vider') }}" class="btn btn-outline-warning">🧹 Vider le panier</a>
+            <a href="{{ path('app_boutique') }}" class="btn btn-outline-secondary">🛍 Continuer les achats</a>
             <a href="{{ path('paiement') }}" class="btn btn-success">💳 Payer</a>
         </div>
     {% endif %}

@@ -20,7 +20,7 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // Création d'un utilisateur standard
+        // ✅ Création d'un utilisateur standard
         $user = new User();
         $user->setEmail('user@example.com');
         $user->setNom('Utilisateur');
@@ -30,7 +30,7 @@ class AppFixtures extends Fixture
         $user->setPassword($this->hasher->hashPassword($user, 'admin1234'));
         $manager->persist($user);
 
-        // Création d'un administrateur
+        // ✅ Création d'un administrateur
         $admin = new User();
         $admin->setEmail('admin@example.fr');
         $admin->setNom('Admin');
@@ -40,7 +40,7 @@ class AppFixtures extends Fixture
         $admin->setPassword($this->hasher->hashPassword($admin, 'admin1234'));
         $manager->persist($admin);
 
-        // Liste des cursus avec leurs leçons
+        // ✅ Cursus avec leurs leçons (et prix des leçons)
         $data = [
             [
                 'nom' => 'Développement Web',
@@ -48,9 +48,9 @@ class AppFixtures extends Fixture
                 'description' => 'Apprenez à créer des sites web modernes.',
                 'prix' => 79.99,
                 'lecons' => [
-                    ['titre' => 'Introduction au HTML', 'contenu' => 'Contenu HTML...'],
-                    ['titre' => 'CSS pour les débutants', 'contenu' => 'Contenu CSS...'],
-                    ['titre' => 'Bases de JavaScript', 'contenu' => 'Contenu JavaScript...'],
+                    ['titre' => 'Introduction au HTML', 'contenu' => 'Contenu HTML...', 'prix' => 19.99],
+                    ['titre' => 'CSS pour les débutants', 'contenu' => 'Contenu CSS...', 'prix' => 24.99],
+                    ['titre' => 'Bases de JavaScript', 'contenu' => 'Contenu JavaScript...', 'prix' => 29.99],
                 ],
             ],
             [
@@ -59,8 +59,8 @@ class AppFixtures extends Fixture
                 'description' => 'Maîtrisez les outils du marketing numérique.',
                 'prix' => 59.99,
                 'lecons' => [
-                    ['titre' => 'SEO : Les bases', 'contenu' => 'Contenu SEO...'],
-                    ['titre' => 'Publicité sur les réseaux', 'contenu' => 'Contenu Ads...'],
+                    ['titre' => 'SEO : Les bases', 'contenu' => 'Contenu SEO...', 'prix' => 19.99],
+                    ['titre' => 'Publicité sur les réseaux', 'contenu' => 'Contenu Ads...', 'prix' => 24.99],
                 ],
             ],
             [
@@ -69,8 +69,8 @@ class AppFixtures extends Fixture
                 'description' => 'Créez des interfaces intuitives.',
                 'prix' => 49.99,
                 'lecons' => [
-                    ['titre' => 'Principes de design', 'contenu' => 'Contenu design...'],
-                    ['titre' => 'Introduction à Figma', 'contenu' => 'Contenu Figma...'],
+                    ['titre' => 'Principes de design', 'contenu' => 'Contenu design...', 'prix' => 19.99],
+                    ['titre' => 'Introduction à Figma', 'contenu' => 'Contenu Figma...', 'prix' => 24.99],
                 ],
             ],
         ];
@@ -87,7 +87,9 @@ class AppFixtures extends Fixture
                 $lecon = new Lecon();
                 $lecon->setTitre($leconData['titre']);
                 $lecon->setContenu($leconData['contenu']);
+                $lecon->setPrix($leconData['prix']); // 🆕 Prix individuel de la leçon
                 $lecon->setCursus($cursus);
+                $lecon->setValidated(true);
                 $manager->persist($lecon);
             }
         }

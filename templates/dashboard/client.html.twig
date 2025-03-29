@@ -6,7 +6,8 @@
 <div class="container mt-4">
     <h1>🎓 Mon espace personnel</h1>
 
-    <h2>📦 Mes achats</h2>
+    <!-- Achats de cursus -->
+    <h2>📦 Mes achats de cursus</h2>
     {% if achats is not empty %}
         <table class="table table-bordered">
             <thead>
@@ -30,10 +31,22 @@
                             </a>
                         </td>
                         <td>
-                            {% if achat.cursus.lecons|length > 0 %}
+                            {% set total = achat.cursus.lecons|length %}
+                            {% set vues = 0 %}
+                            {% for lecon in achat.cursus.lecons %}
+                                {% if lecon.id in leconSuivieIds %}
+                                    {% set vues = vues + 1 %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if total > 0 and vues == total %}
                                 <a href="{{ path('generate_certificat', { id: achat.cursus.id }) }}" class="btn btn-sm btn-outline-primary">
                                     📄 Télécharger le certificat
                                 </a>
+                            {% elseif total > 0 %}
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    🔒 Leçons à terminer ({{ vues }}/{{ total }})
+                                </button>
                             {% else %}
                                 <button class="btn btn-sm btn-outline-secondary" disabled>
                                     🕓 Certificat indisponible
@@ -45,7 +58,41 @@
             </tbody>
         </table>
     {% else %}
-        <div class="alert alert-info">Aucun achat pour le moment.</div>
+        <div class="alert alert-info">Aucun cursus acheté pour le moment.</div>
+    {% endif %}
+
+    <!-- Leçons achetées individuellement -->
+    <hr>
+    <h2>📘 Leçons achetées individuellement</h2>
+    {% if achatsLecons is not empty %}
+        <ul class="list-group">
+            {% for achat in achatsLecons %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ achat.lecon.titre }}
+                    <span class="badge bg-secondary">{{ achat.dateAchat|date('d/m/Y') }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info mt-2">Aucune leçon achetée individuellement.</div>
+    {% endif %}
+
+    <!-- Certificats -->
+    <hr>
+    <h2>📄 Mes certificats</h2>
+    {% if certifications is not empty %}
+        <ul class="list-group mb-4">
+            {% for certification in certifications %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    🎓 {{ certification.cursus.nom }}
+                    <a href="{{ path('generate_certificat', { id: certification.cursus.id }) }}" class="btn btn-sm btn-outline-primary">
+                        📥 Télécharger
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">Aucun certificat généré pour le moment.</div>
     {% endif %}
 </div>
 {% endblock %}

@@ -12,8 +12,10 @@ use App\Repository\CursusRepository;
 use App\Entity\Cursus;
 use App\Form\CursusType;
 use App\Entity\Lecon;
+use App\Entity\AchatLecon;
 use App\Form\LeconType;
 use App\Repository\LeconRepository;
+use App\Entity\LeconSuivie;
 use App\Form\RegistrationFormType;
 use App\Repository\AchatRepository;
 use App\Repository\CertificationRepository;
@@ -28,22 +30,34 @@ use Symfony\Bundle\SecurityBundle\Security;
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_dashboard')]
-    public function index(AchatRepository $achatRepository, CertificationRepository $certificationRepository): Response
-    {
-        $user = $this->getUser(); // Récupération de l'utilisateur connecté
+    public function index(
+        AchatRepository $achatRepository,
+        CertificationRepository $certificationRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $user = $this->getUser();
 
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
 
         if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-            return $this->redirectToRoute('admin_dashboard'); // Redirige les admins directement
+            return $this->redirectToRoute('admin_dashboard');
         }
+
+        $achats = $achatRepository->findBy(['user' => $user]);
+        $achatsLecons = $em->getRepository(AchatLecon::class)->findBy(['user' => $user]);
+        $leconsSuivies = $em->getRepository(LeconSuivie::class)->findBy(['user' => $user]);
+
+        // Récupérer tous les IDs des leçons suivies par l'utilisateur
+        $leconSuivieIds = array_map(fn($ls) => $ls->getLecon()->getId(), $leconsSuivies);
 
         return $this->render('dashboard/client.html.twig', [
             'user' => $user,
-            'achats' => $achatRepository->findBy(['user' => $user]),
+            'achats' => $achats,
             'certifications' => $certificationRepository->findBy(['user' => $user]),
+            'achatsLecons' => $achatsLecons,
+            'leconSuivieIds' => $leconSuivieIds,
         ]);
     }
 

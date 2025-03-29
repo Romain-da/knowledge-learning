@@ -6,16 +6,54 @@
 <div class="container mt-4">
     <h1 class="mb-4">📘 Leçons du cursus : {{ cursus.nom }}</h1>
 
+    {% set total = lecons|length %}
+    {% set vues = 0 %}
+
+    {% for lecon in lecons %}
+        {% set estVue = false %}
+        {% for suivie in lecon.suivies %}
+            {% if suivie.user == app.user %}
+                {% set estVue = true %}
+            {% endif %}
+        {% endfor %}
+        {% if estVue %}
+            {% set vues = vues + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    {% if total > 0 %}
+        <div class="mb-4">
+            <strong>Progression :</strong> {{ vues }}/{{ total }} leçon(s) vues ({{ (vues / total * 100)|number_format(0) }} %)
+            <div class="progress mt-1">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ (vues / total * 100)|number_format(0) }}%" aria-valuenow="{{ vues }}" aria-valuemin="0" aria-valuemax="{{ total }}"></div>
+            </div>
+        </div>
+    {% endif %}
+
     {% if lecons is empty %}
         <div class="alert alert-info">🚫 Vous n'avez accès à aucune leçon pour ce cursus.</div>
     {% else %}
         <div class="list-group">
             {% for lecon in lecons %}
-                <div class="list-group-item mb-3">
-                    <h5 class="mb-1">{{ lecon.titre }}</h5>
-                    <p class="mb-1">{{ lecon.contenu|raw }}</p>
-                    <small class="text-muted">Cursus : {{ lecon.cursus.nom }}</small>
-                </div>
+                {% set estVue = false %}
+                {% for suivie in lecon.suivies %}
+                    {% if suivie.user == app.user %}
+                        {% set estVue = true %}
+                    {% endif %}
+                {% endfor %}
+
+                <a href="{{ path('voir_lecon', { id: lecon.id }) }}" class="list-group-item list-group-item-action mb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">
+                            {{ lecon.titre }}
+                            {% if estVue %}
+                                <span class="badge bg-success">✅ Vue</span>
+                            {% endif %}
+                        </h5>
+                        <p class="mb-1">{{ lecon.contenu[:120]|raw }}...</p>
+                        <small class="text-muted">➡️ Cliquez pour voir la leçon</small>
+                    </div>
+                </a>
             {% endfor %}
         </div>
     {% endif %}

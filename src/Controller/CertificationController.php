@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Cursus;
+use App\Entity\LeconSuivie;
+use App\Repository\LeconRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,11 +15,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class CertificationController extends AbstractController
 {
     #[Route('/certificat/{id}', name: 'generate_certificat')]
-    public function generate(Cursus $cursus): Response
-    {
+    public function generate(
+        Cursus $cursus,
+        LeconRepository $leconRepository,
+        EntityManagerInterface $em
+    ): Response {
         $user = $this->getUser();
 
-        // Vérifie si l'utilisateur a acheté le cursus
+        // ✅ Vérifie que l'utilisateur a bien acheté ce cursus
         $hasAccess = false;
         foreach ($user->getAchats() as $achat) {
             if ($achat->getCursus()->getId() === $cursus->getId()) {
@@ -30,13 +36,20 @@ class CertificationController extends AbstractController
             return $this->redirectToRoute('app_dashboard');
         }
 
-        // Vérifie que le cursus contient bien des leçons
-        if (!$cursus->hasLecons()) {
-            $this->addFlash('warning', '❌ Ce cursus ne contient pas encore de leçons. Le certificat ne peut pas être généré.');
-            return $this->redirectToRoute('app_dashboard');
+        // ✅ Vérifie que toutes les leçons ont été suivies
+        $lecons = $leconRepository->findBy(['cursus' => $cursus]);
+        $suivies = $em->getRepository(LeconSuivie::class)->findBy(['user' => $user]);
+
+        $leconsSuiviesIds = array_map(fn($ls) => $ls->getLecon()->getId(), $suivies);
+
+        foreach ($lecons as $lecon) {
+            if (!in_array($lecon->getId(), $leconsSuiviesIds)) {
+                $this->addFlash('warning', '⚠️ Vous devez consulter toutes les leçons avant de pouvoir générer votre certificat.');
+                return $this->redirectToRoute('lecons_cursus', ['id' => $cursus->getId()]);
+            }
         }
 
-        // Génération du PDF avec Dompdf
+        // ✅ Génère le certificat PDF
         $pdfOptions = new Options();
         $pdfOptions->set('defaultFont', 'Arial');
 

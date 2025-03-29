@@ -4,37 +4,64 @@ namespace App\Service;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\CursusRepository;
+use App\Repository\LeconRepository;
 
 class PanierService
 {
     private $session;
     private CursusRepository $cursusRepository;
+    private LeconRepository $leconRepository;
 
-    public function __construct(RequestStack $requestStack, CursusRepository $cursusRepository)
+    public function __construct(RequestStack $requestStack, CursusRepository $cursusRepository, LeconRepository $leconRepository)
     {
         $this->session = $requestStack->getSession();
         $this->cursusRepository = $cursusRepository;
+        $this->leconRepository = $leconRepository;
     }
 
-    public function ajouter(int $id): void
+    public function ajouterCursus(int $id): void
     {
         $panier = $this->session->get('panier', []);
+        $key = 'cursus_' . $id;
+        $panier[$key] = ($panier[$key] ?? 0) + 1;
+        $this->session->set('panier', $panier);
+    }
 
-        $panier[$id] = ($panier[$id] ?? 0) + 1;
+    public function retirerCursus(int $id): void
+    {
+        $panier = $this->session->get('panier', []);
+        $key = 'cursus_' . $id;
+
+        if (isset($panier[$key])) {
+            if ($panier[$key] > 1) {
+                $panier[$key]--;
+            } else {
+                unset($panier[$key]);
+            }
+        }
 
         $this->session->set('panier', $panier);
     }
 
-    public function retirer(int $id): void
+    public function ajouterLecon(int $id): void
     {
         $panier = $this->session->get('panier', []);
+        $key = 'lecon_' . $id;
+        $panier[$key] = ($panier[$key] ?? 0) + 1;
+        $this->session->set('panier', $panier);
+    }
 
-        if (!isset($panier[$id])) return;
+    public function retirerLecon(int $id): void
+    {
+        $panier = $this->session->get('panier', []);
+        $key = 'lecon_' . $id;
 
-        if ($panier[$id] > 1) {
-            $panier[$id]--;
-        } else {
-            unset($panier[$id]);
+        if (isset($panier[$key])) {
+            if ($panier[$key] > 1) {
+                $panier[$key]--;
+            } else {
+                unset($panier[$key]);
+            }
         }
 
         $this->session->set('panier', $panier);
@@ -45,55 +72,46 @@ class PanierService
         $this->session->remove('panier');
     }
 
-    /**
-     * Retourne un tableau enrichi : [ 'cursus' => Cursus, 'quantite' => int ]
-     */
     public function getPanier(): array
     {
         $panier = $this->session->get('panier', []);
         $details = [];
 
-        foreach ($panier as $id => $quantite) {
-            $cursus = $this->cursusRepository->find($id);
-
-            if ($cursus) {
-                $details[] = [
-                    'cursus' => $cursus,
-                    'quantite' => $quantite,
-                ];
+        foreach ($panier as $key => $quantite) {
+            if (str_starts_with($key, 'lecon_')) {
+                $id = (int) str_replace('lecon_', '', $key);
+                $lecon = $this->leconRepository->find($id);
+                if ($lecon) {
+                    $details[] = [
+                        'type' => 'lecon',
+                        'item' => $lecon,
+                        'quantite' => $quantite,
+                        'prix' => $lecon->getPrix()
+                    ];
+                }
+            } elseif (str_starts_with($key, 'cursus_')) {
+                $id = (int) str_replace('cursus_', '', $key);
+                $cursus = $this->cursusRepository->find($id);
+                if ($cursus) {
+                    $details[] = [
+                        'type' => 'cursus',
+                        'item' => $cursus,
+                        'quantite' => $quantite,
+                        'prix' => $cursus->getPrix()
+                    ];
+                }
             }
         }
 
         return $details;
     }
 
-    /**
-     * Retourne un tableau simplifié à enregistrer en session pour le paiement
-     * (utile si tu veux t’en servir ailleurs aussi)
-     */
-    public function getPanierPourSession(): array
-    {
-        $panier = $this->session->get('panier', []);
-        $sessionItems = [];
-
-        foreach ($panier as $id => $quantite) {
-            $sessionItems[] = [
-                'cursus_id' => $id,
-                'quantite' => $quantite,
-            ];
-        }
-
-        return $sessionItems;
-    }
-
     public function getTotal(): float
     {
         $total = 0;
-
         foreach ($this->getPanier() as $item) {
-            $total += $item['cursus']->getPrix() * $item['quantite'];
+            $total += $item['prix'] * $item['quantite'];
         }
-
         return $total;
     }
 }

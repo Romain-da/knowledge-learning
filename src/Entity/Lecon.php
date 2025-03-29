@@ -5,6 +5,9 @@ namespace App\Entity;
 use App\Repository\LeconRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\LeconSuivie;
 
 #[ORM\Entity(repositoryClass: LeconRepository::class)]
 class Lecon
@@ -21,7 +24,7 @@ class Lecon
     private ?string $contenu = null;
 
     #[ORM\ManyToOne(inversedBy: 'lecons')]
-    #[ORM\JoinColumn(nullable: true)] // Correction: nullable pour éviter les erreurs SQL
+    #[ORM\JoinColumn(nullable: true)]
     private ?Cursus $cursus = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -30,9 +33,17 @@ class Lecon
     #[ORM\Column(type: 'boolean')]
     private bool $isValidated = false;
 
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    private ?float $prix = 0.0;
+
+    #[ORM\OneToMany(mappedBy: 'lecon', targetEntity: LeconSuivie::class, orphanRemoval: true)]
+    private Collection $suivies;
+
     public function __construct()
     {
-        $this->createdAt = new \DateTime(); // Auto-set la date à la création
+        $this->createdAt = new \DateTime();
+        $this->prix = 0.0;
+        $this->suivies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -101,9 +112,50 @@ class Lecon
         return $this;
     }
 
-    // ✅ Ajout d'une méthode __toString() pour l'affichage dans les formulaires
+    public function getPrix(): float
+    {
+        return $this->prix;
+    }
+
+    public function setPrix(float $prix): static
+    {
+        $this->prix = $prix;
+        return $this;
+    }
+
     public function __toString(): string
     {
         return $this->titre;
+    }
+
+    /** ✅ Ajout de la relation avec LeconSuivie **/
+
+    /**
+     * @return Collection<int, LeconSuivie>
+     */
+    public function getSuivies(): Collection
+    {
+        return $this->suivies;
+    }
+
+    public function addSuivie(LeconSuivie $suivie): static
+    {
+        if (!$this->suivies->contains($suivie)) {
+            $this->suivies[] = $suivie;
+            $suivie->setLecon($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSuivie(LeconSuivie $suivie): static
+    {
+        if ($this->suivies->removeElement($suivie)) {
+            if ($suivie->getLecon() === $this) {
+                $suivie->setLecon(null);
+            }
+        }
+
+        return $this;
     }
 }

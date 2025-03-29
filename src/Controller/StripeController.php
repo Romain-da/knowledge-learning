@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Achat;
+use App\Entity\AchatLecon;
 use App\Repository\CursusRepository;
+use App\Repository\LeconRepository;
 use App\Service\PanierService;
 use App\Service\StripeService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,12 +38,13 @@ class StripeController extends AbstractController
             return $this->json(['error' => 'Panier vide'], 400);
         }
 
-        // On stocke un panier simplifié en session (ID et quantite uniquement)
+        // Préparer un panier simplifié à enregistrer en session
         $panierEnAttente = [];
 
         foreach ($panier as $item) {
             $panierEnAttente[] = [
-                'cursus_id' => $item['cursus']->getId(),
+                'type' => $item['type'],
+                'id' => $item['item']->getId(),
                 'quantite' => $item['quantite']
             ];
         }
@@ -49,6 +52,7 @@ class StripeController extends AbstractController
         $requestStack->getSession()->set('achat_en_attente', $panierEnAttente);
 
         $sessionStripe = $stripeService->createCheckoutSession($panier);
+
         return $this->json(['id' => $sessionStripe->id]);
     }
 
@@ -57,7 +61,8 @@ class StripeController extends AbstractController
         EntityManagerInterface $em,
         RequestStack $requestStack,
         PanierService $panierService,
-        CursusRepository $cursusRepository
+        CursusRepository $cursusRepository,
+        LeconRepository $leconRepository
     ): Response {
         $user = $this->getUser();
         $session = $requestStack->getSession();
@@ -69,19 +74,27 @@ class StripeController extends AbstractController
         }
 
         foreach ($panier as $item) {
-            $cursus = $cursusRepository->find($item['cursus_id']);
-
-            if (!$cursus) {
-                continue; // sécurité : si le cursus n'existe plus
+            if ($item['type'] === 'cursus') {
+                $cursus = $cursusRepository->find($item['id']);
+                if ($cursus) {
+                    $achat = new Achat();
+                    $achat->setUser($user);
+                    $achat->setCursus($cursus);
+                    $achat->setDateAchat(new \DateTime());
+                    $achat->setMontant($cursus->getPrix() * $item['quantite']);
+                    $em->persist($achat);
+                }
+            } elseif ($item['type'] === 'lecon') {
+                $lecon = $leconRepository->find($item['id']);
+                if ($lecon) {
+                    $achatLecon = new AchatLecon();
+                    $achatLecon->setUser($user);
+                    $achatLecon->setLecon($lecon);
+                    $achatLecon->setDateAchat(new \DateTime());
+                    $achatLecon->setMontant($lecon->getPrix() * $item['quantite']);
+                    $em->persist($achatLecon);
+                }
             }
-
-            $achat = new Achat();
-            $achat->setUser($user);
-            $achat->setCursus($cursus);
-            $achat->setDateAchat(new \DateTime());
-            $achat->setMontant($cursus->getPrix() * $item['quantite']);
-
-            $em->persist($achat);
         }
 
         $em->flush();
@@ -89,7 +102,6 @@ class StripeController extends AbstractController
         $session->remove('achat_en_attente');
 
         $this->addFlash('success', '🎉 Paiement réussi, vos achats ont été enregistrés !');
-
         return $this->redirectToRoute('app_dashboard');
     }
 

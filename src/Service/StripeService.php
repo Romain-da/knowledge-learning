@@ -22,11 +22,15 @@ class StripeService
         $lineItems = [];
 
         foreach ($items as $item) {
+            $label = $item['type'] === 'lecon'
+                ? 'Leçon : ' . $item['item']->getTitre()
+                : 'Cursus : ' . $item['item']->getNom();
+
             $lineItems[] = [
                 'price_data' => [
                     'currency' => 'eur',
-                    'product_data' => ['name' => $item['cursus']->getNom()],
-                    'unit_amount' => $item['cursus']->getPrix() * 100,
+                    'product_data' => ['name' => $label],
+                    'unit_amount' => $item['prix'] * 100,
                 ],
                 'quantity' => $item['quantite'],
             ];

@@ -41,34 +41,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prenom = null;
 
-    /**
-     * @var Collection<int, Achat>
-     */
     #[ORM\OneToMany(targetEntity: Achat::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $achats;
 
-    /**
-     * @var Collection<int, Certification>
-     */
     #[ORM\OneToMany(targetEntity: Certification::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $certifications;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: AchatLecon::class, orphanRemoval: true)]
+    private Collection $achatLecons;
 
     public function __construct()
     {
         $this->achats = new ArrayCollection();
         $this->certifications = new ArrayCollection();
+        $this->achatLecons = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
+    public function getEmail(): ?string { return $this->email; }
 
     public function setEmail(string $email): static
     {
@@ -76,10 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
+    public function getPassword(): ?string { return $this->password; }
 
     public function setPassword(string $password): static
     {
@@ -105,10 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isVerified(): bool
-    {
-        return $this->isVerified;
-    }
+    public function isVerified(): bool { return $this->isVerified; }
 
     public function setIsVerified(bool $isVerified): static
     {
@@ -116,10 +102,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
+    public function getCreatedAt(): ?\DateTimeInterface { return $this->createdAt; }
 
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
@@ -127,10 +110,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
+    public function getNom(): ?string { return $this->nom; }
 
     public function setNom(?string $nom): static
     {
@@ -138,10 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPrenom(): ?string
-    {
-        return $this->prenom;
-    }
+    public function getPrenom(): ?string { return $this->prenom; }
 
     public function setPrenom(?string $prenom): static
     {
@@ -149,13 +126,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Implémentation requise par UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // Suppression des données sensibles après connexion
-    }
+    public function eraseCredentials(): void {}
 
     public function getUserIdentifier(): string
     {
@@ -165,10 +136,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Achat>
      */
-    public function getAchats(): Collection
-    {
-        return $this->achats;
-    }
+    public function getAchats(): Collection { return $this->achats; }
 
     public function addAchat(Achat $achat): static
     {
@@ -181,10 +149,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeAchat(Achat $achat): static
     {
-        if ($this->achats->removeElement($achat)) {
-            if ($achat->getUser() === $this) {
-                $achat->setUser(null);
-            }
+        if ($this->achats->removeElement($achat) && $achat->getUser() === $this) {
+            $achat->setUser(null);
         }
         return $this;
     }
@@ -192,10 +158,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Certification>
      */
-    public function getCertifications(): Collection
-    {
-        return $this->certifications;
-    }
+    public function getCertifications(): Collection { return $this->certifications; }
 
     public function addCertification(Certification $certification): static
     {
@@ -208,11 +171,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeCertification(Certification $certification): static
     {
-        if ($this->certifications->removeElement($certification)) {
-            if ($certification->getUser() === $this) {
-                $certification->setUser(null);
-            }
+        if ($this->certifications->removeElement($certification) && $certification->getUser() === $this) {
+            $certification->setUser(null);
         }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AchatLecon>
+     */
+    public function getAchatLecons(): Collection
+    {
+        return $this->achatLecons;
+    }
+
+    public function addAchatLecon(AchatLecon $achatLecon): static
+    {
+        if (!$this->achatLecons->contains($achatLecon)) {
+            $this->achatLecons[] = $achatLecon;
+            $achatLecon->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAchatLecon(AchatLecon $achatLecon): static
+    {
+        if ($this->achatLecons->removeElement($achatLecon) && $achatLecon->getUser() === $this) {
+            $achatLecon->setUser(null);
+        }
+
         return $this;
     }
 }

@@ -20,7 +20,6 @@ class PanierService
     {
         $panier = $this->session->get('panier', []);
 
-        // Incrémentation de la quantité ou ajout
         $panier[$id] = ($panier[$id] ?? 0) + 1;
 
         $this->session->set('panier', $panier);
@@ -30,9 +29,7 @@ class PanierService
     {
         $panier = $this->session->get('panier', []);
 
-        if (!isset($panier[$id])) {
-            return;
-        }
+        if (!isset($panier[$id])) return;
 
         if ($panier[$id] > 1) {
             $panier[$id]--;
@@ -48,23 +45,45 @@ class PanierService
         $this->session->remove('panier');
     }
 
+    /**
+     * Retourne un tableau enrichi : [ 'cursus' => Cursus, 'quantite' => int ]
+     */
     public function getPanier(): array
     {
         $panier = $this->session->get('panier', []);
-        $panierDetails = [];
+        $details = [];
 
         foreach ($panier as $id => $quantite) {
             $cursus = $this->cursusRepository->find($id);
 
             if ($cursus) {
-                $panierDetails[] = [
+                $details[] = [
                     'cursus' => $cursus,
                     'quantite' => $quantite,
                 ];
             }
         }
 
-        return $panierDetails;
+        return $details;
+    }
+
+    /**
+     * Retourne un tableau simplifié à enregistrer en session pour le paiement
+     * (utile si tu veux t’en servir ailleurs aussi)
+     */
+    public function getPanierPourSession(): array
+    {
+        $panier = $this->session->get('panier', []);
+        $sessionItems = [];
+
+        foreach ($panier as $id => $quantite) {
+            $sessionItems[] = [
+                'cursus_id' => $id,
+                'quantite' => $quantite,
+            ];
+        }
+
+        return $sessionItems;
     }
 
     public function getTotal(): float

@@ -16,6 +16,16 @@ class LeconRepository extends ServiceEntityRepository
         parent::__construct($registry, Lecon::class);
     }
 
+    public function findByCursusIds(array $ids): array
+    {
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.cursus IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('l.titre', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Lecon[] Returns an array of Lecon objects
 //     */

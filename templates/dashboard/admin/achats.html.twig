@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}📦 Achats{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>📦 Liste des achats</h1>
+
+    {% if achats is not empty %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Utilisateur</th>
+                    <th>Cursus</th>
+                    <th>Date</th>
+                    <th>Montant</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for achat in achats %}
+                    <tr>
+                        <td>{{ achat.id }}</td>
+                        <td>{{ achat.user.email }}</td>
+                        <td>{{ achat.cursus.nom }}</td>
+                        <td>{{ achat.dateAchat|date('d/m/Y H:i') }}</td>
+                        <td>{{ achat.montant }} €</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="alert alert-warning">Aucun achat trouvé.</p>
+    {% endif %}
+</div>
+{% endblock %}

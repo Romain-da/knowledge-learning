@@ -5,13 +5,15 @@
 {% block body %}
 <div class="container mt-4">
     <h1>📦 Gestion des achats</h1>
+
     <a href="{{ path('admin_order_create') }}" class="btn btn-success mb-3">➕ Ajouter un achat</a>
 
-    <table class="table table-bordered table-striped">
-        <thead>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
             <tr>
                 <th>ID</th>
                 <th>Utilisateur</th>
+                <th>Cursus</th>
                 <th>Montant</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -22,16 +24,17 @@
                 <tr>
                     <td>{{ achat.id }}</td>
                     <td>{{ achat.user.email }}</td>
-                    <td>{{ achat.montant }}€</td>
-                    <td>{{ achat.date|date('d/m/Y') }}</td>
+                    <td>{{ achat.cursus.nom }}</td>
+                    <td>{{ achat.montant|number_format(2, ',', ' ') }} €</td>
+                    <td>{{ achat.dateAchat|date('d/m/Y H:i') }}</td>
                     <td>
-                        <a href="{{ path('admin_order_edit', {'id': achat.id}) }}" class="btn btn-primary btn-sm">✏ Modifier</a>
-                        <a href="{{ path('admin_order_delete', {'id': achat.id}) }}" class="btn btn-danger btn-sm" onclick="return confirm('Confirmer la suppression ?');">❌ Supprimer</a>
+                        <a href="{{ path('admin_order_edit', {'id': achat.id}) }}" class="btn btn-sm btn-warning">✏ Modifier</a>
+                        <a href="{{ path('admin_order_delete', {'id': achat.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Confirmer la suppression ?');">🗑 Supprimer</a>
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="5">Aucun achat enregistré.</td>
+                    <td colspan="6" class="text-center">Aucun achat enregistré.</td>
                 </tr>
             {% endfor %}
         </tbody>

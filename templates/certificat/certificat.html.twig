@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificat de réussite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 40px;
+            border: 10px solid #333;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .content {
+            font-size: 20px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .signature {
+            margin-top: 60px;
+            text-align: right;
+            font-size: 16px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎓 Certificat de Réussite</h1>
+
+    <div class="content">
+        <p>Nous certifions que :</p>
+        <p><strong>{{ user.prenom }} {{ user.nom }}</strong></p>
+
+        <p>a complété avec succès le cursus :</p>
+        <p><strong>{{ cursus.nom }}</strong></p>
+
+        <p>Le {{ date|date('d/m/Y') }}</p>
+    </div>
+
+    <div class="signature">
+        Signature de l’administration<br>
+        ___________________________
+    </div>
+
+    <div class="footer">
+        Ce certificat est délivré par la plateforme Knowledge Learning.
+    </div>
+</body>
+</html>

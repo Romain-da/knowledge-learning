@@ -12,23 +12,11 @@ class StripeService
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
-        // 🔒 Sécurité : on vérifie que la clé est bien définie
-        $secretKey = $_ENV['STRIPE_SECRET_KEY'] ?? null;
-
-        if (!$secretKey) {
-            throw new \RuntimeException('❌ La clé STRIPE_SECRET_KEY est manquante dans votre environnement.');
-        }
-
-        Stripe::setApiKey($secretKey);
+        // On lit la clé ici (pas dans les arguments)
+        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY'] ?? throw new \RuntimeException('Clé STRIPE_SECRET_KEY manquante'));
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * Crée une session Stripe Checkout
-     *
-     * @param array $lineItem Un seul élément (nom, prix, quantité, etc.)
-     * @return Session
-     */
     public function createCheckoutSession(array $items): Session
     {
         $lineItems = [];
@@ -37,10 +25,8 @@ class StripeService
             $lineItems[] = [
                 'price_data' => [
                     'currency' => 'eur',
-                    'product_data' => [
-                        'name' => $item['cursus']->getNom(),
-                    ],
-                    'unit_amount' => $item['cursus']->getPrix() * 100, // En centimes
+                    'product_data' => ['name' => $item['cursus']->getNom()],
+                    'unit_amount' => $item['cursus']->getPrix() * 100,
                 ],
                 'quantity' => $item['quantite'],
             ];
@@ -55,3 +41,4 @@ class StripeService
         ]);
     }
 }
+

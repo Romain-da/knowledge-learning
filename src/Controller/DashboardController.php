@@ -371,35 +371,48 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/admin/cursus/edit/{id}', name: 'admin_cursus_edit')]
-public function editCursus(Cursus $cursus, Request $request, EntityManagerInterface $em): Response
-{
-    $this->denyAccessUnlessGranted('ROLE_ADMIN');
+    public function editCursus(Cursus $cursus, Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-    $form = $this->createForm(CursusType::class, $cursus);
-    $form->handleRequest($request);
+        $form = $this->createForm(CursusType::class, $cursus);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Cursus modifié avec succès.');
+            return $this->redirectToRoute('admin_cursus');
+        }
+
+        return $this->render('dashboard/admin/cursus_form.html.twig', [
+            'form' => $form->createView(),
+            'is_edit' => true,
+        ]);
+    }
+
+    #[Route('/dashboard/admin/cursus/delete/{id}', name: 'admin_cursus_delete', methods: ['POST', 'GET'])]
+    public function deleteCursus(Cursus $cursus, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $em->remove($cursus);
         $em->flush();
-        $this->addFlash('success', 'Cursus modifié avec succès.');
+        $this->addFlash('danger', 'Cursus supprimé avec succès.');
+        
         return $this->redirectToRoute('admin_cursus');
     }
 
-    return $this->render('dashboard/admin/cursus_form.html.twig', [
-        'form' => $form->createView(),
-        'is_edit' => true,
-    ]);
-}
+    #[Route('/dashboard/achats', name: 'user_achats')]
+    public function achats(EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        $achats = $em->getRepository(Achat::class)->findBy(['user' => $user]);
 
-#[Route('/dashboard/admin/cursus/delete/{id}', name: 'admin_cursus_delete', methods: ['POST', 'GET'])]
-public function deleteCursus(Cursus $cursus, EntityManagerInterface $em): Response
-{
-    $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        return $this->render('dashboard/achats.html.twig', [
+            'achats' => $achats
+        ]);
+    }
 
-    $em->remove($cursus);
-    $em->flush();
-    $this->addFlash('danger', 'Cursus supprimé avec succès.');
     
-    return $this->redirectToRoute('admin_cursus');
-}
 
 }

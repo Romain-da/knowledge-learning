@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Leçons{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">📘 Leçons du cursus : {{ cursus.nom }}</h1>
+
+    {% if lecons is empty %}
+        <div class="alert alert-info">🚫 Vous n'avez accès à aucune leçon pour ce cursus.</div>
+    {% else %}
+        <div class="list-group">
+            {% for lecon in lecons %}
+                <div class="list-group-item mb-3">
+                    <h5 class="mb-1">{{ lecon.titre }}</h5>
+                    <p class="mb-1">{{ lecon.contenu|raw }}</p>
+                    <small class="text-muted">Cursus : {{ lecon.cursus.nom }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

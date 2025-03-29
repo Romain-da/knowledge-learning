@@ -3,33 +3,41 @@
 {% block title %}Paiement Stripe{% endblock %}
 
 {% block body %}
-    <div class="container mt-5 text-center">
-        <h1>Paiement</h1>
-        <button id="checkout-button" class="btn btn-success">💳 Payer {{ total|number_format(2, ',', ' ') }} €</button>
-    </div>
+<div class="container mt-5 text-center">
+    <h1>Paiement</h1>
+    <p>Total à payer : <strong>{{ total|number_format(2, ',', ' ') }} €</strong></p>
+    <button id="checkout-button" class="btn btn-success">💳 Payer</button>
+</div>
 
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        const stripe = Stripe("{{ stripe_public_key }}");
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe("{{ stripe_public_key|e('js') }}"); // 👈 protection contre caractères spéciaux
 
-        document.getElementById("checkout-button").addEventListener("click", () => {
-            fetch("{{ path('stripe_checkout') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({}) // On pourrait ajouter plus de données si besoin
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.id) {
-                    stripe.redirectToCheckout({ sessionId: data.id });
-                } else {
-                    alert("Erreur lors de la création de la session Stripe.");
-                    console.error(data);
-                }
-            })
-            .catch(err => console.error("Erreur Stripe :", err));
+    document.getElementById("checkout-button").addEventListener("click", () => {
+        fetch("{{ path('stripe_checkout') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Réponse serveur non valide');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.id) {
+                stripe.redirectToCheckout({ sessionId: data.id });
+            } else {
+                alert("Une erreur est survenue lors de la création de la session.");
+                console.error(data);
+            }
+        })
+        .catch(error => {
+            console.error("Erreur pendant la création de la session Stripe :", error);
+            alert("Erreur lors du paiement. Veuillez réessayer plus tard.");
         });
-    </script>
+    });
+</script>
 {% endblock %}

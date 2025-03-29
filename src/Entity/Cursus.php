@@ -51,127 +51,63 @@ class Cursus
         $this->lecons = new ArrayCollection();
         $this->achats = new ArrayCollection();
         $this->certifications = new ArrayCollection();
-        $this->prix = 0.0; // ✅ Initialisation du prix à 0.0
+        $this->prix = 0.0;
     }
 
-    public function getId(): ?int
+    public function getId(): ?int { return $this->id; }
+    public function getNom(): ?string { return $this->nom; }
+    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+    public function getDescription(): ?string { return $this->description; }
+    public function setDescription(?string $description): static { $this->description = $description; return $this; }
+    public function getPrix(): ?float { return $this->prix; }
+    public function setPrix(float $prix): static { $this->prix = $prix; return $this; }
+    public function getCategorie(): ?string { return $this->categorie; }
+    public function setCategorie(string $categorie): static { $this->categorie = $categorie; return $this; }
+
+    public function hasLecons(): bool
     {
-        return $this->id;
+        return !$this->lecons->isEmpty();
     }
 
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
-
-    public function setNom(string $nom): static
-    {
-        $this->nom = $nom;
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): static
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    public function getPrix(): ?float
-    {
-        return $this->prix;
-    }
-
-    public function setPrix(float $prix): static
-    {
-        $this->prix = $prix;
-        return $this;
-    }
-
-    public function getCategorie(): ?string
-    {
-        return $this->categorie;
-    }
-
-    public function setCategorie(string $categorie): static
-    {
-        $this->categorie = $categorie;
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Lecon>
-     */
-    public function getLecons(): Collection
-    {
-        return $this->lecons;
-    }
-
-    public function addLecon(Lecon $lecon): static
-    {
+    public function getLecons(): Collection { return $this->lecons; }
+    public function addLecon(Lecon $lecon): static {
         if (!$this->lecons->contains($lecon)) {
             $this->lecons->add($lecon);
             $lecon->setCursus($this);
         }
         return $this;
     }
-
-    public function removeLecon(Lecon $lecon): static
-    {
+    public function removeLecon(Lecon $lecon): static {
         if ($this->lecons->removeElement($lecon) && $lecon->getCursus() === $this) {
             $lecon->setCursus(null);
         }
         return $this;
     }
 
-    /**
-     * @return Collection<int, Achat>
-     */
-    public function getAchats(): Collection
-    {
-        return $this->achats;
-    }
-
-    public function addAchat(Achat $achat): static
-    {
+    public function getAchats(): Collection { return $this->achats; }
+    public function addAchat(Achat $achat): static {
         if (!$this->achats->contains($achat)) {
             $this->achats->add($achat);
             $achat->setCursus($this);
         }
         return $this;
     }
-
-    public function removeAchat(Achat $achat): static
-    {
+    public function removeAchat(Achat $achat): static {
         if ($this->achats->removeElement($achat) && $achat->getCursus() === $this) {
             $achat->setCursus(null);
         }
         return $this;
     }
 
-    /**
-     * @return Collection<int, Certification>
-     */
-    public function getCertifications(): Collection
-    {
-        return $this->certifications;
-    }
-
-    public function addCertification(Certification $certification): static
-    {
+    public function getCertifications(): Collection { return $this->certifications; }
+    public function addCertification(Certification $certification): static {
         if (!$this->certifications->contains($certification)) {
             $this->certifications->add($certification);
             $certification->setCursus($this);
         }
         return $this;
     }
-
-    public function removeCertification(Certification $certification): static
-    {
+    public function removeCertification(Certification $certification): static {
         if ($this->certifications->removeElement($certification) && $certification->getCursus() === $this) {
             $certification->setCursus(null);
         }

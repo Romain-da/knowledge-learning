@@ -1,33 +1,51 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon espace personnel{% endblock %}
+{% block title %}Espace client{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <h1 class="mb-4">Bienvenue {{ user.email }} 👋</h1>
+<div class="container mt-4">
+    <h1>🎓 Mon espace personnel</h1>
 
-    <h3>🧑‍🏫 Mes cursus achetés</h3>
+    <h2>📦 Mes achats</h2>
     {% if achats is not empty %}
-        <ul>
-            {% for achat in achats %}
-                <li>{{ achat.cursus.nom }}</li>
-            {% endfor %}
-        </ul>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Cursus</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Leçons</th>
+                    <th>Certificat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for achat in achats %}
+                    <tr>
+                        <td>{{ achat.cursus.nom }}</td>
+                        <td>{{ achat.montant|number_format(2, ',', ' ') }} €</td>
+                        <td>{{ achat.dateAchat|date('d/m/Y H:i') }}</td>
+                        <td>
+                            <a href="{{ path('lecons_cursus', { id: achat.cursus.id }) }}" class="btn btn-sm btn-primary">
+                                📖 Voir le cours
+                            </a>
+                        </td>
+                        <td>
+                            {% if achat.cursus.lecons|length > 0 %}
+                                <a href="{{ path('generate_certificat', { id: achat.cursus.id }) }}" class="btn btn-sm btn-outline-primary">
+                                    📄 Télécharger le certificat
+                                </a>
+                            {% else %}
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    🕓 Certificat indisponible
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% else %}
-        <p>Vous n'avez pas encore acheté de cursus.</p>
-        <a href="{{ path('app_boutique') }}" class="btn btn-primary">Découvrir la boutique</a>
-    {% endif %}
-
-    <h3 class="mt-4">📜 Mes certifications</h3>
-    <ul>
-        {% for certification in certifications %}
-            <li>{{ certification.cursus.nom }} - Obtenue le {{ certification.dateObtention|date("d/m/Y") }}</li>
-        {% else %}
-            <li>Aucune certification obtenue.</li>
-        
-    </ul>
-    {% else %}
-        <p>Aucune certification obtenue.</p>
+        <div class="alert alert-info">Aucun achat pour le moment.</div>
     {% endif %}
 </div>
 {% endblock %}

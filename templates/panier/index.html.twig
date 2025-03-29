@@ -7,7 +7,8 @@
     <h1>🛒 Votre Panier</h1>
 
     {% if panier is empty %}
-        <p>Votre panier est vide.</p>
+        <div class="alert alert-info">Votre panier est vide.</div>
+        <a href="{{ path('app_boutique') }}" class="btn btn-primary">🛍 Voir les formations</a>
     {% else %}
         <table class="table">
             <thead>
@@ -23,19 +24,24 @@
                 {% for item in panier %}
                     <tr>
                         <td>{{ item.cursus.nom }}</td>
-                        <td>{{ item.cursus.prix }} €</td>
+                        <td>{{ item.cursus.prix|number_format(2, ',', ' ') }} €</td>
                         <td>{{ item.quantite }}</td>
-                        <td>{{ item.cursus.prix * item.quantite }} €</td>
-                        <td><a href="{{ path('panier_retirer', { id: item.cursus.id }) }}" class="btn btn-sm btn-danger">🗑 Supprimer</a></td>
+                        <td>{{ (item.cursus.prix * item.quantite)|number_format(2, ',', ' ') }} €</td>
+                        <td>
+                            <a href="{{ path('panier_retirer', { id: item.cursus.id }) }}" class="btn btn-sm btn-danger">🗑 Supprimer</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <h3>Total : {{ total }} €</h3>
-        <a href="{{ path('panier_vider') }}" class="btn btn-warning">Vider le panier</a>
-        <a href="{{ path('app_boutique') }}" class="btn btn-secondary">Continuer les achats</a>
-        <a href="{{ path('paiement') }}" class="btn btn-success">💳 Payer</a>
+        <h3>Total : {{ total|number_format(2, ',', ' ') }} €</h3>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{{ path('panier_vider') }}" class="btn btn-warning">🧹 Vider le panier</a>
+            <a href="{{ path('app_boutique') }}" class="btn btn-secondary">🛍 Continuer les achats</a>
+            <a href="{{ path('paiement') }}" class="btn btn-success">💳 Payer</a>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

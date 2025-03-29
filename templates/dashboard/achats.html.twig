@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes achats{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>🧾 Mes Achats</h1>
+
+    {% if achats is not empty %}
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Cursus</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for achat in achats %}
+                    <tr>
+                        <td>{{ achat.cursus.nom }}</td>
+                        <td>{{ achat.montant|number_format(2, ',', ' ') }} €</td>
+                        <td>{{ achat.dateAchat|date('d/m/Y à H:i') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="alert alert-info">Vous n'avez encore effectué aucun achat.</p>
+    {% endif %}
+</div>
+{% endblock %}

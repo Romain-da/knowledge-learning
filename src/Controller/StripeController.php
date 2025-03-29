@@ -20,9 +20,14 @@ class StripeController extends AbstractController
     #[Route('/paiement', name: 'paiement')]
     public function index(PanierService $panierService): Response
     {
+        if (!$this->getUser() || !$this->isGranted('ROLE_USER')) {
+            $this->addFlash('warning', 'Vous devez être connecté pour accéder au paiement.');
+            return $this->redirectToRoute('app_login');
+        }
+
         return $this->render('paiement/index.html.twig', [
             'stripe_public_key' => $_ENV['STRIPE_PUBLIC_KEY'] ?? 'clé_manquante',
-            'total' => $panierService->getTotal()
+            'total' => $panierService->getTotal(),
         ]);
     }
 
@@ -32,24 +37,19 @@ class StripeController extends AbstractController
         PanierService $panierService,
         RequestStack $requestStack
     ): JsonResponse {
+        $user = $this->getUser();
+        if (!$user || !$this->isGranted('ROLE_USER')) {
+            return $this->json(['error' => 'Vous devez être connecté pour payer.'], 403);
+        }
+
         $panier = $panierService->getPanier();
 
         if (empty($panier)) {
             return $this->json(['error' => 'Panier vide'], 400);
         }
 
-        // Préparer un panier simplifié à enregistrer en session
-        $panierEnAttente = [];
-
-        foreach ($panier as $item) {
-            $panierEnAttente[] = [
-                'type' => $item['type'],
-                'id' => $item['item']->getId(),
-                'quantite' => $item['quantite']
-            ];
-        }
-
-        $requestStack->getSession()->set('achat_en_attente', $panierEnAttente);
+        // Stocke le panier complet (avec objets) pour le traitement post-paiement
+        $requestStack->getSession()->set('achat_en_attente', $panier);
 
         $sessionStripe = $stripeService->createCheckoutSession($panier);
 
@@ -74,8 +74,10 @@ class StripeController extends AbstractController
         }
 
         foreach ($panier as $item) {
-            if ($item['type'] === 'cursus') {
-                $cursus = $cursusRepository->find($item['id']);
+            $objet = $item['item'] ?? null;
+
+            if ($item['type'] === 'cursus' && $objet) {
+                $cursus = $cursusRepository->find($objet->getId());
                 if ($cursus) {
                     $achat = new Achat();
                     $achat->setUser($user);
@@ -84,8 +86,10 @@ class StripeController extends AbstractController
                     $achat->setMontant($cursus->getPrix() * $item['quantite']);
                     $em->persist($achat);
                 }
-            } elseif ($item['type'] === 'lecon') {
-                $lecon = $leconRepository->find($item['id']);
+            }
+
+            if ($item['type'] === 'lecon' && $objet) {
+                $lecon = $leconRepository->find($objet->getId());
                 if ($lecon) {
                     $achatLecon = new AchatLecon();
                     $achatLecon->setUser($user);
